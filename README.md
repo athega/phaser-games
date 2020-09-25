@@ -2,3 +2,4 @@
 
 * [hello-phaser](hello-phaser.html)
 * [peter/breakout](peter/breakout/)
+* [Hover Craft Racer (Johan & Mats)](johan-mats/)

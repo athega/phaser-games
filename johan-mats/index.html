@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Hover Craft Racer</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.24.1/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: { y: 0 },
+                debug: false
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var player;
+    var stars;
+    var platforms;
+    var cursors;
+    var score = 0;
+    var time = 30;
+    var scoreText;
+
+    var game = new Phaser.Game(config);
+
+    function preload ()
+    {
+        this.load.image('sky', 'back.png');
+        this.load.image('ground', 'platform.png');
+        this.load.image('star', 'boj.png');
+        this.load.image('hovercraft', 'hovercraft.png');
+    }
+
+    function create ()
+    {
+        this.add.image(400, 300, 'sky');
+
+        platforms = this.physics.add.staticGroup();
+
+
+        platforms.create(Phaser.Math.Between(12, 800-12), Phaser.Math.Between(12, 600-12), 'ground');
+        platforms.create(Phaser.Math.Between(12, 800-12), Phaser.Math.Between(12, 600-12), 'ground');
+        platforms.create(Phaser.Math.Between(12, 800-12), Phaser.Math.Between(12, 600-12), 'ground');
+        platforms.create(Phaser.Math.Between(12, 800-12), Phaser.Math.Between(12, 600-12), 'ground');
+        platforms.create(Phaser.Math.Between(12, 800-12), Phaser.Math.Between(12, 600-12), 'ground');
+        platforms.create(Phaser.Math.Between(12, 800-12), Phaser.Math.Between(12, 600-12), 'ground');
+
+        player = this.physics.add.sprite(100, 450, 'hovercraft');
+
+
+        player.setScale(0.25);
+        player.setBounce(0.1);
+        player.setAngularDrag(40);
+        player.setCollideWorldBounds(true);
+
+
+        setInterval(function() { time-- }, 1000);
+
+        cursors = this.input.keyboard.createCursorKeys();
+
+        stars = this.physics.add.group({
+            key: 'star',
+            repeat: 7,
+        });
+
+        stars.children.iterate(function (child) {
+
+            child.setX(Phaser.Math.Between(12, 800-12));
+            child.setY(Phaser.Math.Between(12, 600-12));
+
+        });
+
+        scoreText = this.add.text(16, -180, 'Score: 0', { fontSize: '32px', fill: '#000' });
+        timerText = this.add.text(16, -140, 'Time: 0', { fontSize: '32px', fill: '#000' });
+
+        this.physics.add.collider(player, platforms);
+        this.physics.add.collider(stars, platforms);
+
+        this.physics.add.overlap(player, stars, collectStar, null, this);
+    }
+
+    function update ()
+    {
+        if (cursors.left.isDown)
+        {
+            // player.rotation -= 0.1;
+            player.setAngularAcceleration(-40);
+
+        }
+        else if (cursors.right.isDown)
+        {
+            // player.rotation += 0.1;
+            player.setAngularAcceleration(40);
+        } else {
+            player.setAngularAcceleration(0);
+        }
+
+        if (cursors.up.isDown)
+        {
+            player.setAcceleration(Math.cos(player.rotation) * 60, Math.sin(player.rotation) * 60);
+        } else {
+            player.setAcceleration(0, 0);
+        }
+
+        if (time <= 0) {
+            this.physics.pause();
+            player.setTint(0xff0000);
+            timerText.setText('Game over!');
+
+        } else {
+            timerText.setText('Time: ' + time);
+        }
+    }
+
+    function collectStar (player, star)
+    {
+        star.setX(Phaser.Math.Between(12, 800-12));
+        star.setY(Phaser.Math.Between(12, 600-12));
+
+        score += 10;
+        time += 3;
+        scoreText.setText('Score: ' + score);
+    }
+
+</script>
+
+</body>
+</html>
