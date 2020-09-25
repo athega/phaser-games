@@ -2,8 +2,16 @@
 <html>
 <head>
   <style>
+      html {
+          height: 100%;
+      }
       body {
           margin: 0;
+          height: 100%;
+      }
+      canvas {
+          width: 100%;
+          height: 100%;
       }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.24.1/dist/phaser-arcade-physics.min.js"></script>
@@ -26,7 +34,7 @@
         }
     };
 
-    const game = new Phaser.Game(config);
+    new Phaser.Game(config);
 
     let bricks;
     let paddle;
@@ -52,7 +60,6 @@
     }
 
     function create() {
-
         //  Enable world bounds, but disable the floor
         this.physics.world.setBoundsCollision(true, true, true, false);
 
@@ -73,8 +80,8 @@
         this.physics.add.collider(ball, paddle, hitPaddle, null, this);
 
         //  The score
-        scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#ff0' });
-        highScoreText = this.add.text(480, 16, 'Highscore: 0', { fontSize: '32px', fill: '#f00' });
+        scoreText = this.add.text(16, 16, 'score: 0', {fontSize: '32px', fill: '#ff0'});
+        highScoreText = this.add.text(480, 16, 'Highscore: 0', {fontSize: '32px', fill: '#f00'});
 
         //  Input events
         this.input.on('pointermove', function (pointer) {
@@ -99,6 +106,7 @@
             // Audio
             if (!audioStarted) {
                 const plugin = this.plugins.get('SIDPlayerPlugin');
+                plugin.setvolume(0.5);
                 plugin.loadLocal(this.cache.binary.get('tune1'));
                 audioStarted = true;
             }
@@ -109,6 +117,8 @@
     function update() {
         if (ball.y > 600) {
             resetBall();
+            score = 0;
+            scoreText.setText('Score: ' + score);
             this.sound.playAudioSprite('sfx', 'death');
         }
     }
@@ -134,23 +144,18 @@
         ball.setVelocity(0);
         ball.setPosition(paddle.x, 500);
         ball.setData('onPaddle', true);
-
-        score = 0;
-        scoreText.setText('Score: ' + score);
     }
 
     function resetLevel() {
         resetBall();
 
-        bricks.children.each(function (brick) {
-
+        bricks.children.each(brick => {
             brick.enableBody(false, 0, 0, true, true);
-
         });
     }
 
     function hitPaddle(ball, paddle) {
-        var diff = 0;
+        let diff = 0;
 
         this.sound.playAudioSprite('sfx', 'squit');
 
