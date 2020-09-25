@@ -74,7 +74,7 @@
 
         //  The score
         scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#ff0' });
-        highScoreText = this.add.text(516, 16, 'Highscore: 0', { fontSize: '32px', fill: '#f00' });
+        highScoreText = this.add.text(480, 16, 'Highscore: 0', { fontSize: '32px', fill: '#f00' });
 
         //  Input events
         this.input.on('pointermove', function (pointer) {
@@ -141,7 +141,6 @@
 
     function resetLevel() {
         resetBall();
-        this.sound.playAudioSprite('sfx', 'death');
 
         bricks.children.each(function (brick) {
 
