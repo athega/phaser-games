@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+      body {
+          margin: 0;
+      }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.24.1/dist/phaser-arcade-physics.min.js"></script>
+</head>
+<body>
+
+<script>
+    const config = {
+        type: Phaser.WEBGL,
+        width: 800,
+        height: 600,
+        parent: 'phaser-example',
+        scene: {
+            preload,
+            create,
+            update,
+        },
+        physics: {
+            default: 'arcade'
+        }
+    };
+
+    const game = new Phaser.Game(config);
+
+    let bricks;
+    let paddle;
+    let ball;
+    let audioStarted = false;
+    let score = 0;
+    let scoreText = '';
+    let highScore = 0;
+    let highScoreText = '';
+
+    function preload() {
+        this.load.atlas('assets', 'assets/breakout.png', 'assets/breakout.json');
+
+        // Audio
+        this.load.binary('tune1', 'assets/black_hawk.sid');
+        this.load.plugin('SIDPlayerPlugin', 'assets/SIDPlayerPluginES5.js', true);
+        this.load.script('jsSID', 'assets/jsSID.js');
+
+    }
+
+    function create() {
+
+        //  Enable world bounds, but disable the floor
+        this.physics.world.setBoundsCollision(true, true, true, false);
+
+        //  Create the bricks in a 10x6 grid
+        bricks = this.physics.add.staticGroup({
+            key: 'assets', frame: ['blue1', 'red1', 'green1', 'yellow1', 'silver1', 'purple1'],
+            frameQuantity: 10,
+            gridAlign: {width: 10, height: 6, cellWidth: 64, cellHeight: 32, x: 112, y: 100}
+        });
+
+        ball = this.physics.add.image(400, 500, 'assets', 'ball1').setCollideWorldBounds(true).setBounce(1);
+        ball.setData('onPaddle', true);
+
+        paddle = this.physics.add.image(400, 550, 'assets', 'paddle1').setImmovable();
+
+        //  Our colliders
+        this.physics.add.collider(ball, bricks, hitBrick, null, this);
+        this.physics.add.collider(ball, paddle, hitPaddle, null, this);
+
+        //  The score
+        scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#ff0' });
+        highScoreText = this.add.text(516, 16, 'Highscore: 0', { fontSize: '32px', fill: '#f00' });
+
+        //  Input events
+        this.input.on('pointermove', function (pointer) {
+
+            //  Keep the paddle within the game
+            paddle.x = Phaser.Math.Clamp(pointer.x, 52, 748);
+
+            if (ball.getData('onPaddle')) {
+                ball.x = paddle.x;
+            }
+
+        }, this);
+
+        this.input.on('pointerup', function (pointer) {
+
+            if (ball.getData('onPaddle')) {
+                ball.setVelocity(-75, -300);
+                ball.setData('onPaddle', false);
+            }
+
+            // Audio
+            if (!audioStarted) {
+                const plugin = this.plugins.get('SIDPlayerPlugin');
+                plugin.loadLocal(this.cache.binary.get('tune1'));
+                audioStarted = true;
+            }
+
+        }, this);
+    }
+
+    function update() {
+        if (ball.y > 600) {
+            resetBall();
+        }
+    }
+
+    function hitBrick(ball, brick) {
+        brick.disableBody(true, true);
+
+        score += 270 - brick.y;
+        scoreText.setText('Score: ' + score);
+
+        if (score > highScore) {
+            highScore = score;
+            highScoreText.setText('Highscore: ' + highScore);
+        }
+
+        if (bricks.countActive() === 0) {
+            resetLevel();
+        }
+    }
+
+    function resetBall() {
+        ball.setVelocity(0);
+        ball.setPosition(paddle.x, 500);
+        ball.setData('onPaddle', true);
+
+        score = 0;
+        scoreText.setText('Score: ' + score);
+    }
+
+    function resetLevel() {
+        resetBall();
+
+        bricks.children.each(function (brick) {
+
+            brick.enableBody(false, 0, 0, true, true);
+
+        });
+    }
+
+    function hitPaddle(ball, paddle) {
+        var diff = 0;
+
+        if (ball.x < paddle.x) {
+            //  Ball is on the left-hand side of the paddle
+            diff = paddle.x - ball.x;
+            ball.setVelocityX(-10 * diff);
+        } else if (ball.x > paddle.x) {
+            //  Ball is on the right-hand side of the paddle
+            diff = ball.x - paddle.x;
+            ball.setVelocityX(10 * diff);
+        } else {
+            //  Ball is perfectly in the middle
+            //  Add a little random X to stop it bouncing straight up!
+            ball.setVelocityX(2 + Math.random() * 8);
+        }
+    }
+</script>
+
+</body>
+</html>
