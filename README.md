@@ -4,3 +4,4 @@
 * [peter/breakout](peter/breakout/)
 * [Hover Craft Racer (Johan & Mats)](johan-mats/)
 * [Chrille/Tobbe Breakout](ct) Firefox
+* [Super Mushroom Man](super-mushroom-man) Kim & Ville
