@@ -42,15 +42,17 @@
     var sound1;
     var sound1Playing = false;
     var sound2;
+    var emitter;
 
     var game = new Phaser.Game(config);
 
     function preload ()
     {
         this.load.image('sky', 'back.png');
-        this.load.image('ground', 'platform.png');
+        this.load.image('ground', 'grass.png');
         this.load.image('star', 'boj.png');
         this.load.image('hovercraft', 'hovercraft.png');
+        this.load.image('particle', 'particle.png');
 
         this.load.audio('throttle', 'jet.ogg');
         this.load.audio('score', 'plopp.ogg');
@@ -70,13 +72,27 @@
         platforms.create(Phaser.Math.Between(12, 800-12), Phaser.Math.Between(12, 600-12), 'ground');
         platforms.create(Phaser.Math.Between(12, 800-12), Phaser.Math.Between(12, 600-12), 'ground');
 
-        player = this.physics.add.sprite(100, 450, 'hovercraft');
+        var particles = this.add.particles('particle');
+
+        emitter = particles.createEmitter({
+            speed: 620,
+            scale: { start: 0.6, end: 0 },
+            blendMode: 'ADD',
+            alpha: 0.1,
+            lifespan: 0,
+            radial: true,
+        });
+
+        player = this.physics.add.sprite(400, 300, 'hovercraft');
 
 
         player.setScale(0.25);
         player.setBounce(0.1);
         player.setAngularDrag(40);
         player.setCollideWorldBounds(true);
+
+
+        emitter.startFollow(player);
 
 
         setInterval(function() { time-- }, 1000);
@@ -88,18 +104,14 @@
             repeat: 7,
         });
 
-        stars.children.iterate(function (child) {
-
-            child.setX(Phaser.Math.Between(12, 800-12));
-            child.setY(Phaser.Math.Between(12, 600-12));
-
-        });
+        stars.children.iterate(moveStar);
 
         scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000' });
         timerText = this.add.text(16, 56, 'Time: 0', { fontSize: '32px', fill: '#000' });
 
         this.physics.add.collider(player, platforms);
-        this.physics.add.collider(stars, platforms);
+        this.physics.add.collider(stars, platforms, moveStar, null, this);
+        this.physics.add.collider(stars, stars, moveStar, null, this);
 
         this.physics.add.overlap(player, stars, collectStar, null, this);
 
@@ -127,11 +139,15 @@
         if (cursors.up.isDown)
         {
             player.setAcceleration(Math.cos(player.rotation) * 60, Math.sin(player.rotation) * 60);
+            emitter.setAngle(player.angle + 180);
+            emitter.setLifespan(400);
+
             if (!sound1Playing) sound1.play();
             sound1Playing = true;
 
         } else {
             player.setAcceleration(0, 0);
+            emitter.setLifespan(0);
             sound1.stop();
             sound1Playing = false;
         }
@@ -156,6 +172,13 @@
         scoreText.setText('Score: ' + score);
 
         sound2.play();
+    }
+
+    function moveStar (star)
+    {
+        star.setX(Phaser.Math.Between(12, 800-12));
+        star.setY(Phaser.Math.Between(12, 600-12));
+
     }
 
 </script>
