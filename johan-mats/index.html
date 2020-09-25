@@ -39,6 +39,9 @@
     var score = 0;
     var time = 30;
     var scoreText;
+    var sound1;
+    var sound1Playing = false;
+    var sound2;
 
     var game = new Phaser.Game(config);
 
@@ -48,6 +51,9 @@
         this.load.image('ground', 'platform.png');
         this.load.image('star', 'boj.png');
         this.load.image('hovercraft', 'hovercraft.png');
+
+        this.load.audio('throttle', 'jet.ogg');
+        this.load.audio('score', 'plopp.ogg');
     }
 
     function create ()
@@ -96,6 +102,10 @@
         this.physics.add.collider(stars, platforms);
 
         this.physics.add.overlap(player, stars, collectStar, null, this);
+
+        sound1 = this.sound.add('throttle');
+        sound2 = this.sound.add('score');
+
     }
 
     function update ()
@@ -117,8 +127,13 @@
         if (cursors.up.isDown)
         {
             player.setAcceleration(Math.cos(player.rotation) * 60, Math.sin(player.rotation) * 60);
+            if (!sound1Playing) sound1.play();
+            sound1Playing = true;
+
         } else {
             player.setAcceleration(0, 0);
+            sound1.stop();
+            sound1Playing = false;
         }
 
         if (time <= 0) {
@@ -139,6 +154,8 @@
         score += 10;
         time += 3;
         scoreText.setText('Score: ' + score);
+
+        sound2.play();
     }
 
 </script>
