@@ -156,6 +156,7 @@
 
         this.sound.playAudioSprite('sfx', 'numkey');
 
+        // Power up
         if (Math.round(Math.random()*15) === 3) {
             const pu = powerUps.create(brick.x, brick.y, 'powerUp');
             pu.setVelocityY(Phaser.Math.Between(100, 200));
@@ -204,9 +205,18 @@
 
     function hitPowerUp(paddle, powerUp) {
         powerUp.disableBody(true, true);
-        paddle.setScale(2);
+
+        this.tweens.add({
+            targets: paddle,
+            scaleX: 2,
+            duration: 500,
+        });
         clearTimeout(powerUpTimeout);
-        powerUpTimeout = setTimeout(() => paddle.setScale(1), 10000);
+        powerUpTimeout = setTimeout(() => this.tweens.add({
+            targets: paddle,
+            scaleX: 1,
+            duration: 500,
+        }), 10000);
     }
 
     function updateScore(newScore) {
