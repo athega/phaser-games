@@ -36,13 +36,17 @@
     };
 
     const game = new Phaser.Game(config);
+    let storage = {};
+    try {
+        storage = JSON.parse(localStorage.getItem('ct'));
+    } catch {}
 
     let bricks;
     let paddle;
     let ball;
     let audioStarted = false;
     let score = 0;
-    let highScore = 0;
+    let highScore = storage.highScore || 0;
     let lives = 3;
     let scoreText = '';
     let highScoreText = '';
@@ -84,10 +88,10 @@
         this.physics.add.collider(ball, paddle, hitPaddle, null, this);
 
         //  Game info
-        scoreText = this.add.text(16, 16, 'Score: 0', {fontSize: '32px', fill: '#ff0'});
-        highScoreText = this.add.text(480, 16, 'Highscore: 0', {fontSize: '32px', fill: '#f00'});
-        livesText = this.add.text(16, 552, 'Lives: 3', {fontSize: '32px', fill: '#0f0'});
-        gameOverText = this.add.text(225, 300, 'GAME OVER', {fontSize: '64px', fill: '#f00'});
+        scoreText = this.add.text(16, 16, `Score: ${score}`, {fontSize: '32px', fill: '#ff0'});
+        highScoreText = this.add.text(470, 16, `High score: ${highScore}`, {fontSize: '32px', fill: '#f00'});
+        livesText = this.add.text(16, 552, `Lives: ${lives}`, {fontSize: '32px', fill: '#0f0'});
+        gameOverText = this.add.text(225, 300, '', {fontSize: '64px', fill: '#f00'});
 
         //  Input events
         this.input.on('pointermove', function (pointer) {
@@ -190,7 +194,9 @@
         scoreText.setText('Score: ' + score);
         if (score > highScore) {
             highScore = score;
-            highScoreText.setText('Highscore: ' + highScore);
+            highScoreText.setText('High score: ' + highScore);
+            storage.highScore = highScore;
+            localStorage.setItem('ct', JSON.stringify(storage));
         }
     }
 </script>
