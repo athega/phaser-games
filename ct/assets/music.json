@@ -1,0 +1,13 @@
+{
+  "resources": [
+    "assets/music.json/music.mp3",
+    "assets/music.json/music.ogg"
+  ],
+  "spritemap": {
+    "level-01": {
+      "start": 0,
+      "end": 190.48489795918368,
+      "loop": false
+    }
+  }
+}

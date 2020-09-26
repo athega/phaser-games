@@ -1,0 +1,16 @@
+{
+  "name": "ct",
+  "version": "0.0.1",
+  "description": "CT",
+  "main": "index.html",
+  "scripts": {
+    "generate-music": "npx audiosprite --path assets/music.json --output assets/music --export ogg,mp3 --channels 2 audio/music/*",
+    "generate-sfx": "npx audiosprite --path assets/sfx.json --output assets/sfx --export ogg,mp3 --channels 2 audio/sfx/*"
+  },
+  "devDependencies": {
+    "audiosprite": "^0.7.2"
+  },
+  "dependencies": {},
+  "author": "",
+  "license": "ISC"
+}

@@ -61,14 +61,14 @@
         this.load.atlas('assets', 'assets/breakout.png', 'assets/breakout.json');
         this.load.image('powerUp', 'assets/star.png');
 
-        // Audio
-        this.load.binary('tune1', 'assets/black_hawk.sid');
-        this.load.plugin('SIDPlayerPlugin', 'assets/SIDPlayerPluginES5.js', true);
-        this.load.script('jsSID', 'assets/jsSID.js');
+        this.load.audioSprite('music', 'assets/music.json', [
+            'assets/music.ogg',
+            'assets/music.mp3'
+        ]);
 
-        this.load.audioSprite('sfx', 'assets/fx_mixdown.json', [
-            'assets/fx_mixdown.ogg',
-            'assets/fx_mixdown.mp3'
+        this.load.audioSprite('sfx', 'assets/sfx.json', [
+            'assets/sfx.ogg',
+            'assets/sfx.mp3'
         ]);
     }
 
@@ -116,7 +116,7 @@
         this.input.on('pointerup', function (pointer) {
 
             if (ball.getData('onPaddle')) {
-                this.sound.playAudioSprite('sfx', 'ping');
+                this.sound.playAudioSprite('sfx', 'start');
                 ball.setVelocity(-75, -300);
                 ball.setData('onPaddle', false);
 
@@ -130,9 +130,7 @@
 
             // Audio
             if (!audioStarted) {
-                const plugin = this.plugins.get('SIDPlayerPlugin');
-                plugin.setvolume(0.5);
-                plugin.loadLocal(this.cache.binary.get('tune1'));
+                this.sound.playAudioSprite('music', 'level-01', { volume: 0.2 });
                 audioStarted = true;
             }
 
@@ -142,10 +140,14 @@
     function update() {
         if (ball.y > 600) {
             resetBall();
-            this.sound.playAudioSprite('sfx', 'death');
+            this.sound.playAudioSprite('sfx', 'drop');
             lives--;
             livesText.setText('Lives: ' + lives);
             if (lives === 0) {
+                this.sound.stopAll();
+                audioStarted = false;
+
+                this.sound.playAudioSprite('sfx', 'gameover');
                 gameOverText.setText('GAME OVER');
             }
         }
@@ -154,12 +156,13 @@
     function hitBrick(ball, brick) {
         brick.disableBody(true, true);
 
-        this.sound.playAudioSprite('sfx', 'numkey');
+        this.sound.playAudioSprite('sfx', 'beep');
 
         // Power up
         if (Math.round(Math.random()*15) === 3) {
             const pu = powerUps.create(brick.x, brick.y, 'powerUp');
             pu.setVelocityY(Phaser.Math.Between(100, 200));
+            this.sound.playAudioSprite('sfx', 'start');
         }
 
         updateScore(score + 270 - brick.y);
@@ -186,7 +189,7 @@
     function hitPaddle(ball, paddle) {
         let diff = 0;
 
-        this.sound.playAudioSprite('sfx', 'squit');
+        this.sound.playAudioSprite('sfx', 'bounce');
 
         if (ball.x < paddle.x) {
             //  Ball is on the left-hand side of the paddle
@@ -206,6 +209,7 @@
     function hitPowerUp(paddle, powerUp) {
         powerUp.disableBody(true, true);
 
+        this.sound.playAudioSprite('sfx', 'expand');
         this.tweens.add({
             targets: paddle,
             scaleX: 2,

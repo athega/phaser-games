@@ -1,0 +1,43 @@
+{
+  "resources": [
+    "assets/sfx.json/sfx.ogg",
+    "assets/sfx.json/sfx.mp3"
+  ],
+  "spritemap": {
+    "beep": {
+      "start": 0,
+      "end": 0.04739229024943311,
+      "loop": false
+    },
+    "bounce": {
+      "start": 1.9999999999999998,
+      "end": 2.0502721088435374,
+      "loop": false
+    },
+    "drop": {
+      "start": 4,
+      "end": 5.190521541950114,
+      "loop": false
+    },
+    "expand": {
+      "start": 7,
+      "end": 8.012675736961452,
+      "loop": false
+    },
+    "gameover": {
+      "start": 10,
+      "end": 14.358072562358277,
+      "loop": false
+    },
+    "star": {
+      "start": 16,
+      "end": 16.88888888888889,
+      "loop": false
+    },
+    "start": {
+      "start": 18,
+      "end": 18.252063492063492,
+      "loop": false
+    }
+  }
+}
