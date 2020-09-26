@@ -147,7 +147,7 @@
             }
 
             // Pause
-            if (this.input.pointer1.isDown || this.input.pointer2.isDown) {
+            if (this.input.pointer1.isDown && this.input.pointer2.isDown) {
                 this.scene.pause();
                 this.scene.launch('Pause');
             }
@@ -254,7 +254,7 @@
 
         update() {
             // Resume
-            if (this.input.pointer1.isDown || this.input.pointer2.isDown) {
+            if (this.input.pointer1.isDown && this.input.pointer2.isDown) {
                 this.scene.switch('Game');
             }
         }
