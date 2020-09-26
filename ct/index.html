@@ -44,6 +44,9 @@
     let bricks;
     let paddle;
     let ball;
+    let powerUps;
+    let powerUpTimeout;
+
     let audioStarted = false;
     let score = 0;
     let highScore = storage.highScore || 0;
@@ -55,6 +58,7 @@
 
     function preload() {
         this.load.atlas('assets', 'assets/breakout.png', 'assets/breakout.json');
+        this.load.image('powerUp', 'assets/star.png');
 
         // Audio
         this.load.binary('tune1', 'assets/black_hawk.sid');
@@ -83,9 +87,12 @@
 
         paddle = this.physics.add.image(400, 550, 'assets', 'paddle1').setImmovable();
 
+        powerUps = this.physics.add.group();
+
         //  Our colliders
         this.physics.add.collider(ball, bricks, hitBrick, null, this);
         this.physics.add.collider(ball, paddle, hitPaddle, null, this);
+        this.physics.add.collider(powerUps, paddle, hitPowerUp, null, this);
 
         //  Game info
         scoreText = this.add.text(16, 16, `Score: ${score}`, {fontSize: '32px', fill: '#ff0'});
@@ -148,6 +155,11 @@
 
         this.sound.playAudioSprite('sfx', 'numkey');
 
+        if (Math.round(Math.random()*15) === 3) {
+            const pu = powerUps.create(brick.x, brick.y, 'powerUp');
+            pu.setVelocityY(Phaser.Math.Between(100, 200));
+        }
+
         updateScore(score + 270 - brick.y);
 
         if (bricks.countActive() === 0) {
@@ -187,6 +199,13 @@
             //  Add a little random X to stop it bouncing straight up!
             ball.setVelocityX(2 + Math.random() * 8);
         }
+    }
+
+    function hitPowerUp(paddle, powerUp) {
+        powerUp.disableBody(true, true);
+        paddle.setScale(2);
+        clearTimeout(powerUpTimeout);
+        powerUpTimeout = setTimeout(() => paddle.setScale(1), 10000);
     }
 
     function updateScore(newScore) {
