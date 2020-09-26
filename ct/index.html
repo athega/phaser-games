@@ -35,10 +35,9 @@
         }
     };
 
-    const game = new Phaser.Game(config);
     let storage = {};
     try {
-        storage = JSON.parse(localStorage.getItem('ct'));
+        storage = JSON.parse(localStorage.getItem('ct')) || {};
     } catch {}
 
     let bricks;
@@ -51,10 +50,12 @@
     let score = 0;
     let highScore = storage.highScore || 0;
     let lives = 3;
-    let scoreText = '';
-    let highScoreText = '';
-    let livesText = '';
-    let gameOverText = '';
+    let scoreText;
+    let highScoreText;
+    let livesText;
+    let gameOverText;
+
+    const game = new Phaser.Game(config);
 
     function preload() {
         this.load.atlas('assets', 'assets/breakout.png', 'assets/breakout.json');
