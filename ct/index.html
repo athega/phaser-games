@@ -5,10 +5,12 @@
       html {
           height: 100%;
       }
+
       body {
           margin: 0;
           height: 100%;
       }
+
       canvas {
           width: 100%;
           height: 100%;
@@ -20,10 +22,9 @@
 
 <script>
     const config = {
-        type: Phaser.WEBGL,
+        renderType: Phaser.AUTO,
         width: 800,
         height: 600,
-        parent: 'phaser-example',
         scene: {
             preload,
             create,
@@ -34,16 +35,19 @@
         }
     };
 
-    new Phaser.Game(config);
+    const game = new Phaser.Game(config);
 
     let bricks;
     let paddle;
     let ball;
     let audioStarted = false;
     let score = 0;
-    let scoreText = '';
     let highScore = 0;
+    let lives = 3;
+    let scoreText = '';
     let highScoreText = '';
+    let livesText = '';
+    let gameOverText = '';
 
     function preload() {
         this.load.atlas('assets', 'assets/breakout.png', 'assets/breakout.json');
@@ -79,9 +83,11 @@
         this.physics.add.collider(ball, bricks, hitBrick, null, this);
         this.physics.add.collider(ball, paddle, hitPaddle, null, this);
 
-        //  The score
-        scoreText = this.add.text(16, 16, 'score: 0', {fontSize: '32px', fill: '#ff0'});
+        //  Game info
+        scoreText = this.add.text(16, 16, 'Score: 0', {fontSize: '32px', fill: '#ff0'});
         highScoreText = this.add.text(480, 16, 'Highscore: 0', {fontSize: '32px', fill: '#f00'});
+        livesText = this.add.text(16, 552, 'Lives: 3', {fontSize: '32px', fill: '#0f0'});
+        gameOverText = this.add.text(225, 300, 'GAME OVER', {fontSize: '64px', fill: '#f00'});
 
         //  Input events
         this.input.on('pointermove', function (pointer) {
@@ -101,6 +107,13 @@
                 this.sound.playAudioSprite('sfx', 'ping');
                 ball.setVelocity(-75, -300);
                 ball.setData('onPaddle', false);
+
+                if (lives === 0) {
+                    updateScore(0);
+                    lives = 3;
+                    livesText.setText('Lives: ' + lives);
+                    gameOverText.setText('');
+                }
             }
 
             // Audio
@@ -117,23 +130,21 @@
     function update() {
         if (ball.y > 600) {
             resetBall();
-            score = 0;
-            scoreText.setText('Score: ' + score);
             this.sound.playAudioSprite('sfx', 'death');
+            lives--;
+            livesText.setText('Lives: ' + lives);
+            if (lives === 0) {
+                gameOverText.setText('GAME OVER');
+            }
         }
     }
 
     function hitBrick(ball, brick) {
         brick.disableBody(true, true);
 
-        score += 270 - brick.y;
-        scoreText.setText('Score: ' + score);
         this.sound.playAudioSprite('sfx', 'numkey');
 
-        if (score > highScore) {
-            highScore = score;
-            highScoreText.setText('Highscore: ' + highScore);
-        }
+        updateScore(score + 270 - brick.y);
 
         if (bricks.countActive() === 0) {
             resetLevel();
@@ -171,6 +182,15 @@
             //  Ball is perfectly in the middle
             //  Add a little random X to stop it bouncing straight up!
             ball.setVelocityX(2 + Math.random() * 8);
+        }
+    }
+
+    function updateScore(newScore) {
+        score = newScore;
+        scoreText.setText('Score: ' + score);
+        if (score > highScore) {
+            highScore = score;
+            highScoreText.setText('Highscore: ' + highScore);
         }
     }
 </script>
