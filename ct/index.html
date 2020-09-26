@@ -55,6 +55,8 @@
     let livesText;
     let gameOverText;
 
+    let isPaused = false;
+
     const game = new Phaser.Game(config);
 
     function preload() {
@@ -135,6 +137,9 @@
             }
 
         }, this);
+
+        // Use two fingers to pause
+        this.input.addPointer(1);
     }
 
     function update() {
@@ -149,6 +154,17 @@
 
                 this.sound.playAudioSprite('sfx', 'gameover');
                 gameOverText.setText('GAME OVER');
+            }
+        }
+
+        // Pause
+        if (this.input.pointer1.isDown && this.input.pointer2.isDown) {
+            if (isPaused) {
+                this.scene.resume();
+                isPaused = false;
+            } else {
+                this.scene.pause();
+                isPaused = true;
             }
         }
     }
