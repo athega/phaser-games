@@ -1,3 +1,14 @@
+import levelTemplates from './levels.js';
+
+const BRICKS = {
+  b: 'blue1',
+  r: 'red1',
+  g: 'green1',
+  y: 'yellow1',
+  s: 'silver1',
+  p: 'purple1',
+};
+
 window.onerror = (message) => { document.getElementById('errorLog').innerText += `\n${message}`; };
 
 class Game extends Phaser.Scene {
@@ -73,6 +84,7 @@ class Game extends Phaser.Scene {
       fontSize: '32px',
       fill: '#ff0',
     });
+    this.scoreText.setDepth(100);
     this.highScoreText = this.add.text(
       410,
       16,
@@ -82,6 +94,7 @@ class Game extends Phaser.Scene {
         fill: '#f00',
       },
     );
+    this.highScoreText.setDepth(100);
     this.livesText = this.add.text(16, 552, `Lives: ${this.lives}`, {
       fontSize: '32px',
       fill: '#0f0',
@@ -134,12 +147,22 @@ class Game extends Phaser.Scene {
 
         // Audio
         if (!this.audioStarted) {
-          this.sound.playAudioSprite('music', 'level-01', { volume: 0.2 });
+          if (!this.sound.playAudioSprite('music', `level-${this.level < 10 ? `0${this.level}` : this.level}`, { volume: 0.2 })) {
+            this.sound.playAudioSprite('music', 'level-01', { volume: 0.2 });
+          }
           this.audioStarted = true;
         }
       },
       this,
     );
+
+    // Cheat
+    this.input.keyboard.on('keydown', (key) => {
+      if (key.altKey && key.keyCode >= 49 && key.keyCode <= 57) {
+        this.level = key.keyCode - 49;
+        this.resetLevel();
+      }
+    });
   }
 
   update() {
@@ -188,27 +211,47 @@ class Game extends Phaser.Scene {
   resetLevel() {
     this.resetBall();
 
+    this.sound.stopAll();
+    this.audioStarted = false;
+
     this.level += 1;
     this.levelText.setText(`Level ${this.level < 10 ? `0${this.level}` : this.level}`);
 
     if (this.bricks) {
       this.bricks.clear(true, true);
+    } else {
+      this.bricks = this.physics.add.staticGroup();
     }
 
-    //  Create the bricks in a 10x6 grid
-    this.bricks = this.physics.add.staticGroup({
-      key: 'assets',
-      frame: ['blue1', 'red1', 'green1', 'yellow1', 'silver1', 'purple1'],
-      frameQuantity: 10,
-      gridAlign: {
-        width: 10,
-        height: 6,
-        cellWidth: 64,
-        cellHeight: 32,
-        x: 112,
-        y: 100,
-      },
-    });
+    if (levelTemplates[this.level]) {
+      let x = 48;
+      let y = 16;
+      levelTemplates[this.level].split('\n').forEach((row) => {
+        row.split('').forEach((brick) => {
+          if (brick.trim()) {
+            this.bricks.create(x, y, 'assets', BRICKS[brick]);
+          }
+          x += 64;
+        });
+        x = 48;
+        y += 32;
+      });
+    } else {
+      //  Create the bricks in a 10x6 grid
+      this.bricks = this.physics.add.staticGroup({
+        key: 'assets',
+        frame: ['blue1', 'red1', 'green1', 'yellow1', 'silver1', 'purple1'],
+        frameQuantity: 10,
+        gridAlign: {
+          width: 10,
+          height: 6,
+          cellWidth: 64,
+          cellHeight: 32,
+          x: 112,
+          y: 100,
+        },
+      });
+    }
 
     this.physics.add.collider(
       this.ball,

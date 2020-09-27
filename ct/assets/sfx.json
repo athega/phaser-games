@@ -16,32 +16,32 @@
     },
     "drop": {
       "start": 4,
-      "end": 5.190521541950114,
+      "end": 4.922766439909297,
       "loop": false
     },
     "expand": {
-      "start": 7,
-      "end": 8.012675736961452,
+      "start": 6,
+      "end": 7.012675736961452,
       "loop": false
     },
     "gameover": {
-      "start": 10,
-      "end": 14.358072562358277,
+      "start": 9,
+      "end": 13.358072562358277,
       "loop": false
     },
     "shrink": {
-      "start": 16,
-      "end": 16.67655328798186,
+      "start": 15,
+      "end": 15.676553287981859,
       "loop": false
     },
     "star": {
-      "start": 18,
-      "end": 18.88888888888889,
+      "start": 17,
+      "end": 17.88888888888889,
       "loop": false
     },
     "start": {
-      "start": 20,
-      "end": 20.252063492063492,
+      "start": 19,
+      "end": 19.252063492063492,
       "loop": false
     }
   }
