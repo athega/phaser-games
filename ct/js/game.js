@@ -15,6 +15,7 @@ class Game extends Phaser.Scene {
     this.highScore = 0;
     this.lives = 3;
     this.highScore = this.storage.highScore || 0;
+    this.level = 0;
   }
 
   preload() {
@@ -36,21 +37,6 @@ class Game extends Phaser.Scene {
     //  Enable world bounds, but disable the floor
     this.physics.world.setBoundsCollision(true, true, true, false);
 
-    //  Create the bricks in a 10x6 grid
-    this.bricks = this.physics.add.staticGroup({
-      key: 'assets',
-      frame: ['blue1', 'red1', 'green1', 'yellow1', 'silver1', 'purple1'],
-      frameQuantity: 10,
-      gridAlign: {
-        width: 10,
-        height: 6,
-        cellWidth: 64,
-        cellHeight: 32,
-        x: 112,
-        y: 100,
-      },
-    });
-
     this.ball = this.physics.add
       .image(400, 500, 'assets', 'ball1')
       .setCollideWorldBounds(true)
@@ -62,6 +48,9 @@ class Game extends Phaser.Scene {
       .setImmovable();
 
     this.powerUps = this.physics.add.group();
+
+    this.levelText = this.add.text(250, 320, '', { fontSize: '64px', fill: '#ccc' });
+    this.resetLevel();
 
     //  Our colliders
     this.physics.add.collider(
@@ -108,15 +97,20 @@ class Game extends Phaser.Scene {
       fontSize: '64px',
       fill: '#f00',
     });
+
     this.pauseButton = this.add.text(768, 0, '⏸️', { fontSize: '32px' }).setInteractive();
     this.pauseButton.setName('pause');
+    this.pauseButton.on('pointerdown', () => {
+      this.scene.pause();
+      this.scene.launch('Pause');
+    });
 
     //  Input events
     this.input.on(
       'pointermove',
       (pointer) => {
         const newX = pointer.wasTouch
-          ? this.paddle.x + (pointer.velocity.x / 3)
+          ? this.paddle.x + (pointer.position.x - pointer.prevPosition.x)
           : pointer.x;
         //  Keep the paddle within the game
         this.paddle.x = Phaser.Math.Clamp(newX, 52, 748);
@@ -129,10 +123,11 @@ class Game extends Phaser.Scene {
     );
 
     this.input.on(
-      'pointerdown',
+      'pointerup',
       () => {
         if (this.ball.getData('onPaddle')) {
           this.sound.playAudioSprite('sfx', 'start');
+          this.levelText.setText('');
           this.ball.setVelocity(-75, -300);
           this.ball.setData('onPaddle', false);
 
@@ -152,15 +147,6 @@ class Game extends Phaser.Scene {
       },
       this,
     );
-
-    this.input.on('gameobjectup', (pointer, button) => {
-      console.log(button);
-      if (button.name === 'pause') {
-        // Pause
-        this.scene.pause();
-        this.scene.launch('Pause');
-      }
-    }, this);
   }
 
   update() {
@@ -169,6 +155,7 @@ class Game extends Phaser.Scene {
       this.sound.playAudioSprite('sfx', 'drop');
       this.lives -= 1;
       this.livesText.setText(`Lives: ${this.lives}`);
+
       if (this.lives === 0) {
         this.sound.stopAll();
         this.audioStarted = false;
@@ -206,6 +193,28 @@ class Game extends Phaser.Scene {
 
   resetLevel() {
     this.resetBall();
+
+    this.level += 1;
+    this.levelText.setText(`Level ${this.level < 10 ? `0${this.level}` : this.level}`);
+
+    if (this.bricks) {
+      this.bricks.clear(true);
+    }
+
+    //  Create the bricks in a 10x6 grid
+    this.bricks = this.physics.add.staticGroup({
+      key: 'assets',
+      frame: ['blue1', 'red1', 'green1', 'yellow1', 'silver1', 'purple1'],
+      frameQuantity: 10,
+      gridAlign: {
+        width: 10,
+        height: 6,
+        cellWidth: 64,
+        cellHeight: 32,
+        x: 112,
+        y: 100,
+      },
+    });
 
     this.bricks.children.each((brick) => {
       brick.enableBody(false, 0, 0, true, true);
