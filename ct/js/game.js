@@ -55,13 +55,6 @@ class Game extends Phaser.Scene {
     //  Our colliders
     this.physics.add.collider(
       this.ball,
-      this.bricks,
-      this.hitBrick,
-      null,
-      this,
-    );
-    this.physics.add.collider(
-      this.ball,
       this.paddle,
       this.hitPaddle,
       null,
@@ -181,6 +174,7 @@ class Game extends Phaser.Scene {
     this.updateScore(this.score + 270 - brick.y);
 
     if (this.bricks.countActive() === 0) {
+      this.level = 0;
       this.resetLevel();
     }
   }
@@ -198,7 +192,7 @@ class Game extends Phaser.Scene {
     this.levelText.setText(`Level ${this.level < 10 ? `0${this.level}` : this.level}`);
 
     if (this.bricks) {
-      this.bricks.clear(true);
+      this.bricks.clear(true, true);
     }
 
     //  Create the bricks in a 10x6 grid
@@ -216,9 +210,13 @@ class Game extends Phaser.Scene {
       },
     });
 
-    this.bricks.children.each((brick) => {
-      brick.enableBody(false, 0, 0, true, true);
-    });
+    this.physics.add.collider(
+      this.ball,
+      this.bricks,
+      this.hitBrick,
+      null,
+      this,
+    );
   }
 
   hitPaddle(ball, paddle) {
