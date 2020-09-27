@@ -113,8 +113,11 @@ class Game extends Phaser.Scene {
     this.input.on(
       'pointermove',
       (pointer) => {
+        const newX = pointer.wasTouch
+          ? this.paddle.x + (pointer.velocity.x / 4)
+          : pointer.x;
         //  Keep the paddle within the game
-        this.paddle.x = Phaser.Math.Clamp(pointer.x, 52, 748);
+        this.paddle.x = Phaser.Math.Clamp(newX, 52, 748);
 
         if (this.ball.getData('onPaddle')) {
           this.ball.x = this.paddle.x;
@@ -124,7 +127,7 @@ class Game extends Phaser.Scene {
     );
 
     this.input.on(
-      'pointerup',
+      'pointerdown',
       () => {
         if (this.ball.getData('onPaddle')) {
           this.sound.playAudioSprite('sfx', 'start');
@@ -148,8 +151,13 @@ class Game extends Phaser.Scene {
       this,
     );
 
-    // Use two fingers to pause
-    this.input.addPointer(1);
+    this.input.on('pointerup', (pointer) => {
+      if (pointer.wasTouch) {
+        // Pause
+        this.scene.pause();
+        this.scene.launch('Pause');
+      }
+    }, this);
   }
 
   update() {
@@ -165,12 +173,6 @@ class Game extends Phaser.Scene {
         this.sound.playAudioSprite('sfx', 'gameover');
         this.gameOverText.setText('GAME OVER');
       }
-    }
-
-    // Pause
-    if (this.input.pointer1.isDown && this.input.pointer2.isDown) {
-      this.scene.pause();
-      this.scene.launch('Pause');
     }
   }
 
@@ -269,15 +271,11 @@ class Pause extends Phaser.Scene {
   create() {
     this.add.text(280, 300, 'PAUSED', { fontSize: '64px', fill: '#ccc' });
 
-    // Use two fingers to resume
-    this.input.addPointer(1);
-  }
-
-  update() {
-    // Resume
-    if (this.input.pointer1.isDown && this.input.pointer2.isDown) {
-      this.scene.switch('Game');
-    }
+    this.input.on('pointerdown', () => {
+      // Resume
+      this.scene.stop();
+      this.scene.resume('Game');
+    }, this);
   }
 }
 
