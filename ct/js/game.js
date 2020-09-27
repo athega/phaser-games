@@ -92,7 +92,7 @@ class Game extends Phaser.Scene {
       fill: '#ff0',
     });
     this.highScoreText = this.add.text(
-      470,
+      410,
       16,
       `High score: ${this.highScore}`,
       {
@@ -108,13 +108,15 @@ class Game extends Phaser.Scene {
       fontSize: '64px',
       fill: '#f00',
     });
+    this.pauseButton = this.add.text(768, 0, '⏸️', { fontSize: '32px' }).setInteractive();
+    this.pauseButton.setName('pause');
 
     //  Input events
     this.input.on(
       'pointermove',
       (pointer) => {
         const newX = pointer.wasTouch
-          ? this.paddle.x + (pointer.velocity.x / 4)
+          ? this.paddle.x + (pointer.velocity.x / 3)
           : pointer.x;
         //  Keep the paddle within the game
         this.paddle.x = Phaser.Math.Clamp(newX, 52, 748);
@@ -151,8 +153,9 @@ class Game extends Phaser.Scene {
       this,
     );
 
-    this.input.on('pointerup', (pointer) => {
-      if (pointer.wasTouch) {
+    this.input.on('gameobjectup', (pointer, button) => {
+      console.log(button);
+      if (button.name === 'pause') {
         // Pause
         this.scene.pause();
         this.scene.launch('Pause');
