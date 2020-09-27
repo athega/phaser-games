@@ -1,3 +1,5 @@
+window.onerror = (message) => { document.getElementById('errorLog').innerText += `\n${message}`; };
+
 class Game extends Phaser.Scene {
   constructor() {
     super({ key: 'Game' });
