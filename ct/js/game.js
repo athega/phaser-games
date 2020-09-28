@@ -139,6 +139,7 @@ class Game extends Phaser.Scene {
 
           if (this.lives === 0) {
             this.updateScore(0);
+            this.level = 0;
             this.lives = 3;
             this.livesText.setText(`Lives: ${this.lives}`);
             this.gameOverText.setText('');
@@ -197,7 +198,6 @@ class Game extends Phaser.Scene {
     this.updateScore(this.score + 270 - brick.y);
 
     if (this.bricks.countActive() === 0) {
-      this.level = 0;
       this.resetLevel();
     }
   }
