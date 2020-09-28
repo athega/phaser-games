@@ -143,6 +143,7 @@ class Game extends Phaser.Scene {
             this.lives = 3;
             this.livesText.setText(`Lives: ${this.lives}`);
             this.gameOverText.setText('');
+            this.resetLevel();
           }
         }
 
