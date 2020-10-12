@@ -43,8 +43,8 @@
     {
         var bg = this.add.image(0, 0, 'sky');
         bg.setOrigin(0, 0);
-        bg.displayHeight = document.documentElement.offsetHeight;
-        bg.displayWidth = document.documentElement.offsetWidth;
+        bg.displayHeight = window.innerHeight;
+        bg.displayWidth = window.innerWidth;
 
         var particles = this.add.particles('red');
 
@@ -55,6 +55,7 @@
         });
 
         var logo = this.physics.add.image(400, 100, 'logo');
+        logo.displayWidth = Math.min(logo.displayWidth, window.innerWidth);
 
         logo.setVelocity(100, 200);
         logo.setBounce(1, 1);
